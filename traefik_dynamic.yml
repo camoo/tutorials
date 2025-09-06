@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /certs/wp.localhost-cert.pem
+      keyFile: /certs/wp.localhost-key.pem
