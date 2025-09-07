@@ -1,27 +1,40 @@
 # Start from official WordPress with Apache + PHP 8.3
 FROM wordpress:6.6-php8.3-apache
 
-# Install useful tools (git, zip, unzip) and PHP extensions
+ARG UID=1000
+ARG GID=1000
+
+# Create user/group matching host IDs
+RUN groupadd -g "$GID" camoo \
+ && useradd -m -u "$UID" -g "$GID" -c "Camoo User" camoo
+
+# Install tools + PHP extensions
 RUN apt-get update && apt-get install -y \
+    procps \
     less \
     vim \
     git \
     unzip \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
+ && docker-php-ext-install mysqli \
+ && docker-php-ext-enable mysqli
 
-# Enable recommended PHP extensions
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+# Install Xdebug (disabled by default, enable with env vars)
+RUN pecl install xdebug \
+ && docker-php-ext-enable xdebug
 
-# Install WP-CLI
-RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+# Enable Apache rewrite for WP permalinks
+RUN a2enmod rewrite
+
+# Install WP-CLI (latest)
+RUN curl -o /usr/local/bin/wp -L https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
     && chmod +x /usr/local/bin/wp
 
-# Set working directory
+
+# Redirect Apache logs to Docker logs (stdout/stderr) if not already done
+# RUN ln -sf /dev/stdout /var/log/apache2/access.log \
+# && ln -sf /dev/stderr /var/log/apache2/error.log
+
 WORKDIR /var/www/html
 
-# Optional: copy in custom php.ini (uncomment if you want this)
-# COPY ./php.ini /usr/local/etc/php/
-
-# Healthcheck (optional, good demo point)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+USER camoo

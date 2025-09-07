@@ -18,9 +18,9 @@ services:
       - --api.dashboard=true
       - --log.level=INFO
     ports:
-      - "8080:80"
-      - "8443:443"
-      - "8088:8080" # Traefik dashboard (optional) → http://localhost:8088
+      - "80:80"
+      - "443:443"
+      - "8088:8086" # Traefik dashboard (optional) → http://localhost:8088
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik_dynamic.yml:/etc/traefik/dynamic/traefik_dynamic.yml:ro
@@ -57,9 +57,14 @@ services:
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_DB_NAME: ${DB_NAME}
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
+      XDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
+      XDEBUG_IDEKEY: ${XDEBUG_IDEKEY:-PHPSTORM}
     volumes:
       - ./docker/wordpress:/var/www/html
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     networks:
       - default
       - proxy

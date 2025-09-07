@@ -52,3 +52,9 @@ define('WP_MAIL_SMTP_PORT', 1025);
 gsettings set org.gnome.desktop.interface locate-pointer true
 # press and release Ctrl to show a ripple around the cursor
 ```
+
+# Access apache logs
+```bash
+docker compose -p wpdemo logs -f apache
+
+```
