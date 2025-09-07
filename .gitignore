@@ -54,3 +54,9 @@ wp-config.php
 .certs
 .env
 .idea
+
+# Docker
+docker-compose.override.yml
+docker-compose.prod.yml
+.DS_Store
+.vscode
